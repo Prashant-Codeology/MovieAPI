@@ -16,6 +16,7 @@ namespace Services.Dependency
         public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddTransient<IMovieService, MovieService>();
+            services.AddTransient<IAccountService, AccountService>();
             return services;
         }
     }

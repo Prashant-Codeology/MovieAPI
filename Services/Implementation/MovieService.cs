@@ -4,6 +4,7 @@ using DTO.ViewModels;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Model;
 using Services.Interfaces;
@@ -21,10 +22,10 @@ namespace Services.Implementation
     public class MovieService : IMovieService
     {
         private readonly IMovieRepository _movieRepository;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<AppUser> _userManager;
         private readonly IHostingEnvironment _environment;
 
-        public MovieService(IMovieRepository movieRepository, IHostingEnvironment environment, UserManager<IdentityUser> userManager)
+        public MovieService(IMovieRepository movieRepository, IHostingEnvironment environment, UserManager<AppUser> userManager)
         {
             _movieRepository = movieRepository;
             _environment = environment;
@@ -55,9 +56,10 @@ namespace Services.Implementation
             }
         }
 
-        public Task DeleteMovie(Guid id)
+        public async Task DeleteMovie(Guid id)
         {
-            throw new NotImplementedException();
+            await _movieRepository.DeleteMovie(id);   
+           // throw new NotImplementedException();
         }
 
         public async Task<GetAllMoviesVM> GetAllMovies()
@@ -113,6 +115,27 @@ namespace Services.Implementation
          
             // throw new NotImplementedException();
         }
+        public async Task UpdateImage(UpdateImageVM movie)
+        {
+            try
+            {
+                var data = await _movieRepository.GetMovieById(movie.MovieId);
+                var path = "C:\\Users\\prash\\OneDrive\\Desktop\\Projects\\MovieAPI\\MovieAPI\\";
+                var filePath = "Images/" + movie.ImagePath.FileName;
+                var fullPath = Path.Combine(path, filePath);
+                UploadFile(movie.ImagePath, fullPath);
+
+                data.ImagePath = filePath;
+
+                //  await _dbContext.SaveChangesAsync();
+                await _movieRepository.UpdateMovie(data);
+            }
+            catch (DbUpdateException ex)
+            {
+                var message = ex.Message;
+            }
+        }
+
         public async Task UploadFile(IFormFile file, string path)
         {
             FileStream stream = new FileStream(path, FileMode.Create);

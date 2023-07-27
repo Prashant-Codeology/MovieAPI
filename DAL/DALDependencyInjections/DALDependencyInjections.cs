@@ -1,6 +1,7 @@
 ﻿using DAL.DBContext;
 using DAL.Repository.Implementation;
 using DAL.Repository.Interfaces;
+using DAL.Seed;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,6 +27,7 @@ namespace DAL.DALDependencyInjections
 
            
             services.AddTransient<IMovieRepository, MovieRepository>();
+            services.AddTransient<IRole, Role>();
 
             return services;
         }

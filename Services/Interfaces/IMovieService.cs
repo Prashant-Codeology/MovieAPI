@@ -18,6 +18,6 @@ namespace Services.Interfaces
         Task DeleteMovie(Guid id);
         Task<decimal> GetAverageRating(Guid id);
         Task UploadFile(IFormFile file, string path);
-
+        Task UpdateImage(UpdateImageVM movie);
     }
 }

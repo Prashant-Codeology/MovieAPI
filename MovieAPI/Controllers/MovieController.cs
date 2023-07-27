@@ -1,16 +1,20 @@
 ﻿using Azure;
 using DAL.Repository.Interfaces;
 using DTO.ViewModels;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Model;
 using Services.Interfaces;
+using System.Data;
 using System.Net;
 
 namespace MovieAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class MovieController : ControllerBase
     {
         private readonly IMovieService _movieService;
@@ -77,11 +81,44 @@ namespace MovieAPI.Controllers
             try
             {
                 await _movieService.UpdateMovie(MovieId, movie);
-                return new Respo<MovieUpdateVM> { Status = "Success", Message = "Movie Updated Successfully", HttpStatus = HttpStatusCode.NoContent, Data = movie };
+                return new Respo<MovieUpdateVM> { Status = "Success", Message = "Movie Updated Successfully", HttpStatus = HttpStatusCode.OK, Data = movie };
             }
             catch (Exception ex)
             {
                 return new Respo<MovieUpdateVM> { Status = "Error", Message = ex.Message, HttpStatus = HttpStatusCode.InternalServerError };
+            }
+        }
+        [HttpDelete]
+        [Route("~/api/DeleteMovie/{MovieId}")]
+        public async Task<Respo<string>> DeleteMovie(Guid MovieId)
+        {
+            try
+            {
+                if (await _movieService.GetMovieById(MovieId) != null)
+                {
+                    await _movieService.DeleteMovie(MovieId);
+                    return new Respo<string> { Status = "Success", Message = "Movie Deleted Successfully", HttpStatus = HttpStatusCode.NoContent };
+                }
+                return new Respo<string> { Status = "Not Found", Message = "Movie Not Found", HttpStatus = HttpStatusCode.NotFound };
+            }
+            catch (Exception ex)
+            {
+                return new Respo<string> { Status = "Error", Message = ex.Message, HttpStatus = HttpStatusCode.InternalServerError };
+            }
+        }
+
+        [HttpPatch]
+        [Route("~/api/UpdateImage")]
+        public async Task<Respo<string>> UpdateImage([FromForm] UpdateImageVM update)
+        {
+            try
+            {
+                await _movieService.UpdateImage(update);
+                return new Respo<string> { Status = "Success", HttpStatus = HttpStatusCode.OK, Message = "Image Changed Successfully" };
+            }
+            catch (Exception ex)
+            {
+                return new Respo<string> { Status = "Error", Message = ex.Message, HttpStatus = HttpStatusCode.InternalServerError };
             }
         }
 
